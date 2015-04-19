@@ -1,0 +1,179 @@
+Attendees: BenBE, magu, felix
+
+Involved Parties:
+- Software Developement
+    * Felix Dörre (Program Author)
+- Software Assessment
+    * Bernhard Fröhlich (Software Review)
+    * Benny Baumann (Software Review, Process Organisation)
+- Audit
+    * Benedikt Heintel (Internal Auditor)
+- Board
+    * CAcert Inc. (Oversight)
+- Critical Administrators
+    * Wytze (Execution)
+    * ... (Execution)
+- Access Engineers
+    * ... (Logging, Control, Oversight, ...)
+
+Abstract:
+================
+
+The root certificate of CAcert is currently signed with MD5. This is deprecated and should be replaced by a newer signature. To allow interop with existing certificates no new key material is created, but a new signature on the old proto-certificate (TBSCertificate structure) is created.
+
+Rationale:
+================
+
+The Class 1 Root certificate is chained based on its Public Key Fingerprint rather than its certificate fingerprint. Thus changing the certificate while keeping the identifying information intact should keep existing chains valid.
+
+Preparation:
+================
+
+Perform a dry-run of the actual process on a test server and verify everything works as required.
+
+Process:
+================
+
+The program will look for a certificate("root.crt") and its private key ("root.key"), resign the certificate with SHA256 and output the new certificate ("root_256.crt"). The Process should therefore be executed like this:
+
+Input artifacts:
+- The productive signer machine, containing:
+    - The class 1 Root certificate (root.crt)
+    - The class 1 Root private key (root.key)
+- A verified live system CD
+- A blank, fresh USB thumb drive
+- A separate machine (for the preparation part)
+- The source code of the tool
+- The checksums of the source code (on paper)
+- pen and paper (for noting fingerprints)
+
+Preparation on a separate box:
+---------------------------------------
+- Remove any hard drive or other storage from the computer used for the preparations
+- Reconnect only:
+    - A blank, fresh USB thumb drive
+    - A CD-ROM drive to read the live system CD
+- Boot a Debian live CD system based on the same version as the signer OS.
+- Format the USB thumb drive and cold reboot the live CD system to clear all traces from memory
+- Reboot the live CD system
+
+- Create a log of the following steps:
+  - Copy the source code of the resigning tool into the live CD system
+  - Generate a temporary public/private key pair K in temporary (ramfs or tmpfs) memory.
+  - The Access Engineers and the Critical Administrators independently note down the public key fingerprint of the created key (SHA256, SHA512, Whirlpool) on paper.
+  - Verify the source code, that it has the correct fingerprints (MD5, SHA1, SHA256, SHA512, Whirlpool).
+  - Compile the source code in a way that the following files are produced in the process
+    - The executable binary
+        - Linking OpenSSL 1.0.1 SHOULD by static
+    - All intermediate object files
+    - An assembly listing of both the object files AND the final executable in inter-mixed Intel Assembler/source notation
+  - Create signatures by K on a listing of the checksums (MD5, SHA1, SHA256, SHA512, Whirlpool) of all the above files
+  - Store the following information on the USB thumb drive
+    - The executable binary
+    - All intermediate object files
+    - All assembly listings produced
+    - The signatures of K on the listing of checksums
+    - The Public Key part of K
+- end of log
+- store the log on the thumb drive
+- Ensure the destruction of K's private key by shutting down the system and running a full run of the memtest86+
+
+
+Actual Execution on the signer:
+---------------------------------------
+- Create a log of the following steps:
+    - Create a new directory on the signer in ramfs [or tmpfs if ramfs is not available] (in the following called working directory (WD) )
+        IMPORTANT: Make sure no other running activity on the signer is able to access the contents inside this directory.
+    - Copy the binary onto the signer into the WD
+    - Copy the CAcert Root Certificate to WD/root.crt
+    - Decrypt the Private Key of the CAcert Root Certificate to "WD/root.key"
+    - Execute the tool
+    - Copy WD/root_256.crt to the USB thumb drive as root_256.crt
+    - Wipe the WD and all it's contents
+- end of log
+- ensure no passwords or sensitive data is in the logfile BEFORE storage on the thumb drive
+- store the log on the thumb drive
+- Perform the tests described below on the WebDB system
+
+Resulting artifacts from the process:
+
+- On the USB thumb drive:
+    - The signed alternate root certificate file root_256.crt
+    - Compilation artifacts (see above)
+    - The signatures of K on the listing of checksums
+    - Public key of K
+    - both log files (live system and signer)
+    - Test report
+- Fingerprint of the key K (on paper) once per person.
+
+Post-execution steps:
+---------------------------
+
+- Access Engineers and Critical Administrator Team members independently hand the Fingerprint of the key K by unencrypted, signed mail to Audit
+- Hand the checksums of all files on the USB thumb drive to Audit in unencrypted, signed mail.
+- Hand the contents of the USB thumb drive to Audit in encrypted and signed mail or other means as necessary (within 24h hours after execution)
+- Hand the physical USB thumb drive to Audit ASAP for safe-keeping (not time-critical, but within one month appreciated)
+
+- Transfer all documentation of the process to Audit for verification
+
+- Audit verifies all provided documentation for completeness and performs own tests of the new root certificate as deemed appropriate
+
+- On audit approval forward all necessary data (multiple signed Fingerprints of K as attached mail, the signed checksums of all files and the files themselves) as attached mails to Software for verification and for inclusion of the alternative root certificate file into the software
+
+- Software requests Critical Administrators to create a new signature for verification of the keys according to bug 1254 which includes this alternate new root certificate file additionally to the existing class 1 fingerprints
+
+- All emails (including signatures) and all resulting files (objects, assemblies, logs, ...) should be made available to the public (e.g. in the wiki).
+
+Test requirements:
+===============
+
+Test of included data:
+---------------------------
+
+- Compare the contents of the certificates ("openssl x509 -noout -text -in <file>.crt" and "openssl asn1parse -in <file>.crt"). The only different MUST be the signature method and the resulting signature value
+- Ensure the new certificate neither includes MORE nor LESS details than the original old one.
+- Ensure the validity period of both files matches to the second!
+
+Test of functionality:
+-------------------------
+
+- Verify the new certificate validates for itself
+- Verify the new certificate validates for the class 3 being checked
+- Verify the new certificate validates a random existing class 1 certificate, which is valid on the old one
+- Verify the new certificate validates a random existing class 3 certificate, which is valid on the old one
+- Verify no existing certificate is valid on the new one which is not also valid on the old one
+- Verify no existing certificate is invalid on the new one which is valid on the old one
+
+Audit Considerations:
+===============
+- The update of the signature on the root certificate REQUIRES a defined process. This document aims to define this process for review by others and guidance for execution.
+
+Security Considerations:
+================
+
+- This process requires access to the root keys to be performed. To protect the root keys a set of precautions need to be made to allow an audit of the executed code after the fact. For this the binaries executed on the signer as well as all temporary object files used for creation MUST be made available to Software AND Audit.
+- The access to the private key requires special oversight by Audit. Thus all steps of the process MUST be documented in their entirety to allow Audit a proper assessment of all accesses performed.
+- Due to the nature of the used program it MUST be ensured that no other task running on the signer can gain access to the private key.
+- Decrypting the private key outside of the tool instead of e.g. making the tool prompt for a password for the encrypted key is preferred for this situation, because the implementation/complexity necessary for implementing this feature would be more error prone and thus more risky. This holds especially as the API of OpenSSL makes doing this correctly much more complex than the current program was to begin with. Using mount -t ramfs for temporary storage of the decrypted key ensures the key is not stored to any physical storage, but only kept in RAM. Having the key in RAM decrypted a second time (tmpfs/ramfs) is less critical, than having to implement the password prompt (may introduce unnecessary causes for errors).
+- The creation of a second version of the root certificate is a significant operational step which requires authorisation by Board beforehand.
+- The creation of a second version of the root certificate furthermore requires extensive interoperability tests being performed to ensure proper, identical behaviour given
+    - Only the old root is available
+    - Only the new root is available
+    - Both the old AND new root is available
+
+
+Log:
+====
+
+2014-12-23    Private discussion of Software (BenBE) with NRE (Magu) on this idea
+
+2015-01-08    Creation of the tool implementing the signature creation by Felix (on request by Software / BenBE)
+
+2015-01-10    Several Questions from Software (BenBE) to Audit (Benedikt) on requirements for this process
+    - No presence of Audit requested
+    - Requirement for Code Review before Execution
+    - Control/Inspection by independent personnel (e.g. Access Engineer suggested by Audit)
+    - Check/Validation of the resulting certificate file (Approval by Audit)
+
+2015-01-17    Creation of this Process Documentation
+

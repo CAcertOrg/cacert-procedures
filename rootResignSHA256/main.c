@@ -42,6 +42,15 @@ int main(int argc, char *argv[]){
         printf("Error while adding extension\n");
         return -1;
     }
+    if( !add_ext( cert, cert, NID_netscape_ca_revocation_url, "URI:http://crl.cacert.org/revoke.crl" ) ){
+        printf("Error while adding extension\n");
+        return -1;
+    }
+    if( !add_ext( cert, cert, NID_info_access, "OCSP;URI:http://ocsp.cacert.org" ) ){
+        printf("Error while adding extension\n");
+        return -1;
+    }
+
     X509_sign(cert, pkey, EVP_sha256());
 
     PEM_write_bio_X509(out, cert);

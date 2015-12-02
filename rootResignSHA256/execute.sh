@@ -40,8 +40,8 @@ openssl rsautl -sign -inkey signkey.priv -in checksums.hash > signature
 cp checksums checksums.hash signature signkey.pub main main.c main.o /mnt
 rm signkey.priv
 
-echo ================================
-echo things left to do:
-echo cp typescript timelog /mnt
-echo ls -Al /mnt
-echo umount /mnt
+echo "================================"
+echo "things left to do:"
+echo "cp typescript timelog /mnt"
+echo "ls -Al /mnt"
+echo "umount /mnt"

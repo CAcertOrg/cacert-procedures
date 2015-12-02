@@ -1,0 +1,117 @@
+With only few software assessors in the core team it's hard to get
+enough reviews on the patches by the core team causing partially
+reviewed patches to keep laying in the queue. As one of our core
+principles is openness one solution might be to open up the review to
+allow also Software Developers to do part of the review:
+
+1. Preconditions and Announcing the use of this procedure.
+1a. Patches to be handled using this procedure must be in "Needs review"
+state (with full testing already performed) for at least 2 weeks.
+
+This enforced delay ensures qualifying issues can't be fast-pathed and
+thus ensure enough time for external review is available.
+
+1b. There will be a public notification on cacert-devel@l.c.o by a
+member of the Software Assessment team to propose an issue to use this
+procedure.
+
+The announcement on the public mailing list cacert-devel@l.c.o is in
+order to make people aware of such issues so they can decide which
+issues might need some extra eyes for review and as a system of checks
+and balances.
+
+1c. Following the announcement 2 weeks are granted for the community to
+check the change and voice a veto if necessary.
+
+This ensures that there is enough time for public intervention after an
+issue was suggested to use this procedure. This change was introduced
+based on a found bug in the original proposal and due to requests while
+this proposal was under internal review.
+
+6. The patch complexity should be kept at a minimum.
+
+Common sense should apply here.
+
+2. The affected patch must not be related to or marked as an security issue.
+
+3. The patch must not be written by the software assessor doing the
+first review, nor any of the non-SAs doing secondary reviews or tests.
+
+This enforces that as many people as possible are guaranteed to have
+had a look at the patch before it can be sent off to the Critical Admin
+Team. While this might look counter-intuitive given we are lacking
+Software Assessors, this condition has been build in for checks and
+balances on purpose to enforce our checks and balances based on a
+four-eye principle. This condition additionally ensures a baseline of
+the quality of checks given only more, but not less people are reviewing
+such changes.
+
+There was a remark by Wytze about the wording. While agreed in theory
+the wording would conflict with how this aspect is lived for other
+processes.
+
+Also to encourage intensive testing it is advised for the Software
+Assessor/First reviewer to check qualifying tests and reviews after the
+fact such that if someone did both test and review it can be decided
+that only the test, only the review or none of both is counted towards
+the required checks. Important here is that if someone did both test and
+review that only one of those activities is counted (cf. 7).
+
+4. There must be one or more Software assessors and at least two
+non-Software Assessors approving the change (in a written comment on the
+bugtracker).
+
+5. There must not be any veto on the patch itself
+
+Any member of CAcert is allowed to voice a veto on the bugtracker
+(preferred) or on the cacert-devel@l.c.o mailing list (in reply to the
+announcement mail) provided that their veto attacks aspects of the
+patch, it's implementation or related implications on the software if it
+was installed. Simply vetoing because one does not like the change is
+insufficient.
+
+7. Whether two non-SA reviews are deemed sufficient is at the sole
+discretion of the Software Assessor doing the First Review OR the one
+forwarding it to the Critical Admins.
+
+This also includes WHETHER the Software Assessor who is doing the First
+Review actually counts a certain non-SA review or not. The involved
+Software Assessors are responsible for the quality of the
+performed/counted non-SA reviews; non-SAs are bound to their review by
+CARS. If necessary the SA doing the first review SHOULD provide feedback
+to non-SAs doing review work.
+
+8. Any Software Assessor may transfer such a patch to the Critical
+Admins. Preferrably though it should be sent off by the SA who did the
+first review.
+
+If there's a second SA who can prepare the forwarding to the Critical
+Admins that second SA is usually preferred to also do a (regular) second
+review. This process should be used as a last resort and thus what can
+be done using regular procedures should be done using them.
+
+9. Upon sending the patch off to production a final check of the patch
+should be performed by the SA sending the patch. Lack of the formal
+second review by a SA should be documented when the change is to be
+installed.
+
+This includes reading the patch, checking documentation, checking
+performed reviews and their accompanying reports and other things that
+might indicate signs why this patch might have to be held off.
+
+10. Qualifying Issues:
+10a. Patches that may be subject to this procedure are (but not limited to):
+- Textual changes
+- Minor bugs
+- Minor functional changes according to or in order to comply to
+existing policy
+- Source formatting
+- Static content updates
+
+10b. Patches that must not be subject to this procedure are:
+- Security issues
+- Issues depending on other issues
+- Issues depending on modification of the database or filesystem structure
+- Issues including major refactoring work
+- Issues that required more than 3 iterations before being tested
+successfully.

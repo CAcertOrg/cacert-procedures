@@ -43,4 +43,5 @@ rm signkey.priv
 echo ================================
 echo things left to do:
 echo cp typescript timelog /mnt
+echo ls -Al /mnt
 echo umount /mnt

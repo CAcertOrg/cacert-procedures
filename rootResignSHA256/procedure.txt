@@ -44,8 +44,15 @@ Input artifacts:
 - A blank, fresh USB thumb drive
 - A separate machine (for the preparation part)
 - The source code of the tool
-- The checksums of the source code (on paper)
+- the execution script for the compilation
+- the debian packages
+    - libssl-dev_1.0.1e-2+deb7u17_i386.deb
+    - libssl1.0.0_1.0.1e-2+deb7u17_i386.deb
+    - zlib1g-dev_1.2.7.dfsg-13_i386.deb
+- The checksums of the execution script (on paper)
 - pen and paper (for noting fingerprints)
+
+- debian packages zlib1g-dev, libssl1.0.1-dev
 
 Preparation on a separate box:
 ---------------------------------------
@@ -54,26 +61,37 @@ Preparation on a separate box:
     - A blank, fresh USB thumb drive
     - A CD-ROM drive to read the live system CD
 - Boot a Debian live CD system based on the same version as the signer OS.
-- Format the USB thumb drive and cold reboot the live CD system to clear all traces from memory
-- Reboot the live CD system
+- Format the USB thumb drive (mke2fs) and cold reboot the live CD system to clear all traces from memory
+
 
 - Create a log of the following steps:
-  - Copy the source code of the resigning tool into the live CD system
+  - copy libss11.0.1, libssl1.0.1-dev, zlib1g-dev to "/ramdisk"
+  - copy "main.c" to "/ramdisk/compilation"
+  - copy "execute.sh" to /ramdisk
+
+  - verify the sha256-checksum of the "execute.sh" to be:
+     130a8782eb2d0b8f6c5bf4db87c8e6da73727aa5807bcbac06d25465b447ea01
+  - execute "execute.sh"
+  The script does:
   - Generate a temporary public/private key pair K in temporary (ramfs or tmpfs) memory.
+   - openssl genrsa 2048 > k.key
+   - openssl -in k.key -pubout k.pub
   - The Access Engineers and the Critical Administrators independently note down the public key fingerprint of the created key (SHA256, SHA512, Whirlpool) on paper.
-  - Verify the source code, that it has the correct fingerprints (MD5, SHA1, SHA256, SHA512, Whirlpool).
+   - openssl rsa -pubin -in pub.key -noout -fingerprint -sha256
+  - Verify the source code, that it has the correct fingerprints (SHA256).
   - Compile the source code in a way that the following files are produced in the process
     - The executable binary
         - Linking OpenSSL 1.0.1 SHOULD by static
     - All intermediate object files
-    - An assembly listing of both the object files AND the final executable in inter-mixed Intel Assembler/source notation
-  - Create signatures by K on a listing of the checksums (MD5, SHA1, SHA256, SHA512, Whirlpool) of all the above files
+   // - An assembly listing of both the object files AND the final executable in inter-mixed Intel Assembler/source notation
+  - Create signatures by K on a listing of the checksums (SHA256) of all the above files
   - Store the following information on the USB thumb drive
     - The executable binary
     - All intermediate object files
-    - All assembly listings produced
+    // - All assembly listings produced
     - The signatures of K on the listing of checksums
     - The Public Key part of K
+  end of script execution
 - end of log
 - store the log on the thumb drive
 - Ensure the destruction of K's private key by shutting down the system and running a full run of the memtest86+
@@ -81,6 +99,9 @@ Preparation on a separate box:
 
 Actual Execution on the signer:
 ---------------------------------------
+
+TODO this part needs to be updated when the resulting compilation procedure result (part 1) from 23.08.2015 has been published.
+
 - Create a log of the following steps:
     - Create a new directory on the signer in ramfs [or tmpfs if ramfs is not available] (in the following called working directory (WD) )
         IMPORTANT: Make sure no other running activity on the signer is able to access the contents inside this directory.
@@ -89,6 +110,8 @@ Actual Execution on the signer:
     - Decrypt the Private Key of the CAcert Root Certificate to "WD/root.key"
     - Execute the tool
     - Copy WD/root_256.crt to the USB thumb drive as root_256.crt
+     - note the fingerprint of root_256.crt
+      - openssl x509 -in root_256.crt -outform der | openssl dgst -sha256
     - Wipe the WD and all it's contents
 - end of log
 - ensure no passwords or sensitive data is in the logfile BEFORE storage on the thumb drive

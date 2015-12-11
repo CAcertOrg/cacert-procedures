@@ -31,7 +31,7 @@ read
 
 
 cc -c main.c
-cc main.o -lssl -o main
+cc -o main main.o -static -lcrypto -lz -ldl
 
 sha256sum main main.o main.c > checksums
 openssl dgst -sha256 checksums > checksums.hash

@@ -50,6 +50,14 @@ int main(int argc, char *argv[]){
         printf("Error while adding extension\n");
         return -1;
     }
+    BIGNUM *bn = BN_new();
+    
+    if(BN_hex2bn(&bn, "0f") == 0) {
+        printf("Error while setting Bignum\n");
+        return -1;
+    }
+    BN_to_ASN1_INTEGER( bn , cert->cert_info->serialNumber );
+    BN_free(bn);
 
     X509_sign(cert, pkey, EVP_sha256());
 

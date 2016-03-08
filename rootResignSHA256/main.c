@@ -32,7 +32,7 @@ int main(int argc, char *argv[]){
     BIO *inter = BIO_new_file("class3.crt", "r");
     BIO *rootkey = BIO_new_file("root.key", "r");
     BIO *outRoot = BIO_new_file("root_256.crt", "w");
-    BIO *outInter = BIO_new_file("class3_new.crt", "w");
+    BIO *outInter = BIO_new_file("class3_256.crt", "w");
 
     X509 *rootCert = PEM_read_bio_X509(root, NULL, 0, NULL);
     BIO_free(root);

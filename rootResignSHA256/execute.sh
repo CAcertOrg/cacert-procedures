@@ -11,14 +11,16 @@ cd /ramdisk
 
 echo "Checking checksums of own files"
 sha256sum -c <( cat <<EOF
-2a1dc4a314c18533135c89aabc1d0dbc4f25f7dee571b38d9e3f767c28699da9  ./compilation/main.c
-4ae13e84372caaa40dda23222137c5f058df9b0b800b937e24b34440c5cdf831  libssl-dev_1.0.1e-2+deb7u17_i386.deb
-8e1e7c50b274fdddad39d8474207d1e4ce83932572862c635bc8080eacee5f88  libssl1.0.0_1.0.1e-2+deb7u17_i386.deb
-ad8c7ffc81c9e01b56cf9c8cddf38aa0e5383e2045a85ed68e936aae642c6340  zlib1g-dev_1.2.7.dfsg-13_i386.deb
+f646a48024388bfe605a5ba2f90ee21f6385f921c9bde623cef520af6730ff30  ./compilation/main.c
+dbe9f4e86f1f4a4a99acd1289a2f565fd8d3ee9c1877063b7a35ae3a704de26c  libssl1.0.0_1.0.1f-1ubuntu2.18_amd64.deb
+f6c3075d116e86fe7853c73e5e177674aba038dab8d656da1064e20e14a470d7  libssl-dev_1.0.1f-1ubuntu2.18_amd64.deb
+d44332327123a4fef16ededcffac98ac0425402f9c2ccc8e42193b122f8a54b8  zlib1g-dev_1.2.8.dfsg-1ubuntu1_amd64.deb
 EOF
 ) || (echo "ERROR, checksums bad" && exit -1)
 
-dpkg -i libssl1.0.0_1.0.1e-2+deb7u17_i386.deb libssl-dev_1.0.1e-2+deb7u17_i386.deb zlib1g-dev_1.2.7.dfsg-13_i386.deb
+dpkg -i libssl1.0.0_1.0.1f-1ubuntu2.18_amd64.deb \
+	libssl-dev_1.0.1f-1ubuntu2.18_amd64.deb \
+	zlib1g-dev_1.2.8.dfsg-1ubuntu1_amd64.deb
 
 cd compilation
 

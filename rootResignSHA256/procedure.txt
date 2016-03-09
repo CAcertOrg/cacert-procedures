@@ -53,6 +53,9 @@ Input artifacts:
     - The Class 1 Root certificate (root.crt)
     - The Class 1 Root private key (root.key)
     - The Class 3 Intermediate certificate (class3.crt)
+      NB: The Class 3 Intermediate private key is not used as all signatures
+      are done using the Class 1 Root private key (the Root certificate signs
+      the Intermediate certificate, not the other way around).
 - A verified live system CD
 - A blank, fresh USB thumb drive
 - A separate machine (for the preparation part)

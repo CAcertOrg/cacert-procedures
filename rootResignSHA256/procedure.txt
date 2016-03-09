@@ -149,6 +149,17 @@ Resulting artifacts from the process:
 Post-execution steps:
 ---------------------------
 
+- Validate the signatures of the files on the USB thumb drive
+  - NB: Validation can be done using OpenSSL on the command line:
+    - Regenerate file with the hash that was signed:
+      openssl dgst -sha256 THEFILE > THEFILE.verifyhash
+    - Decrypt the contents of the signature:
+      openssl rsautl -verify -keyform PEM -inkey K.pub -pubin -in THEFILE.sig > THEFILE.verifysig
+    - Verify signed and verified contents are equal:
+      cat THEFILE.verifyhash THEFILE.verifysig # Display
+      cmp THEFILE.verifyhash THEFILE.verifysig # Compare
+    --> Produces no output on success or location of first difference otherwise
+
 - Access Engineers and Critical Administrator Team members independently hand the Fingerprint of the key K by unencrypted, signed mail to Audit
 - Hand the checksums of all files on the USB thumb drive to Audit in unencrypted, signed mail.
 - Hand the contents of the USB thumb drive to Audit in encrypted and signed mail or other means as necessary (within 24h hours after execution)

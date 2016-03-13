@@ -1,6 +1,7 @@
-root.crt
-root.csr
-root.key
-root_256.crt
-tool
+#Ignore any certificate files
+root*
+class3*
 
+#Ignore compiled binaries
+main
+tool
